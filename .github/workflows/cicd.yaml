@@ -1,0 +1,51 @@
+name: ci-cd.
+on:
+  push:
+    branches:
+     - master
+defaults:
+  run:
+    working-directory: .
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@main
+         
+      - name: Setup Node 16.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+          
+      - name: Cache node modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+           
+          key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-npm-cache-
+            ${{ runner.OS }}-
+       
+      
+        
+      - name: Install
+        run: npm install
+   
+        
+
+      - name: Build
+        run: npm run build
+        env:
+         CI: false
+         
+         
+      - name: Publish
+        uses: JamesIves/github-pages-deploy-action@4.1.1
+        with:
+          branch: master
+          folder: .
+          target-folder: .
+          commit-message: "Build Created Successfully"
